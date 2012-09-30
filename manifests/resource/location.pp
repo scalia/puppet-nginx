@@ -16,6 +16,7 @@
 # [*proxy_send_timeout*] - Override the default the proxy send timeout value of 90 seconds
 # [*match_type*] - URI matching. Use '~' for case-sensitive regex match, '~*' for case-insensitive regex, or leave at default undef for literal match.
 # [*proxy_set_headers*] - a hash of { <header_name> => <header_var> } so nginx passes request headers to the upstream.
+# [*fastcgi_params*] - a hash of { <param> => <value> }, to be used to write fastcgi module nginx parameters that this module does not cover.
 # [*other_directives*] - a hash of { <directive> => <value> }, to be used to write other nginx directives that this module does not cover.
 #
 # Actions:
@@ -56,6 +57,7 @@ define nginx::resource::location(
   $proxy_send_timeout = undef,
   $proxy_set_headers = {},
   $upstream = undef,
+  $fastcgi_params = {},
   $other_directives = {}
 ) {
   File {
@@ -85,7 +87,7 @@ define nginx::resource::location(
 # Use proxy template if $proxy is defined, otherwise use directory template.
   if ($proxy) {
     $content_real = template('nginx/vhost/vhost_location_proxy.erb')
-  } else if ($www_root) {
+  } elsif ($www_root) {
     $content_real = template('nginx/vhost/vhost_location_directory.erb')
   } else {
     $content_real = template('nginx/vhost/vhost_location_fastcgi.erb')

@@ -23,6 +23,7 @@ class nginx::service {
     command     => "cat ${nginx::nx_conf_dir_real}/conf.d/.frag* > ${nginx::nx_conf_dir_real}/conf.d/generated.conf",
     #onlyif => "",
     refreshonly => true,
+    path => ["/bin", "/usr/bin", "/usr/sbin"],
   }
   service { 'nginx':
     ensure     => running,
