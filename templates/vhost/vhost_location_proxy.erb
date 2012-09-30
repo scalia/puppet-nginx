@@ -17,4 +17,8 @@
     proxy_set_header <%= header %> <%= var %>;
 <% end -%>
 
+<% other_directives.sort.map do  |directive,value|  -%>
+    <%= directive %> <%= value %>;
+<% end -%>
+
   }

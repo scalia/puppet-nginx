@@ -1,0 +1,8 @@
+  location <% if @match_type %><%= match_type %><% end -%> <%= location %> {
+    fastcgi_pass <%= upstream %>;
+
+    <% other_directives.sort.map do  |directive,value|  -%>
+        <%= directive %> <%= value %>;
+    <% end -%>
+
+  }

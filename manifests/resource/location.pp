@@ -55,6 +55,7 @@ define nginx::resource::location(
   $proxy_read_timeout = undef,
   $proxy_send_timeout = undef,
   $proxy_set_headers = {},
+  $upstream = undef,
   $other_directives = {}
 ) {
   File {
@@ -67,18 +68,27 @@ define nginx::resource::location(
     'absent' => absent,
     default  => present,
   }
-  if ($www_root  and  $proxy ) {
-    fail('A location reference must have exactly one of www_root or proxy defined')
+  if ($www_root and $proxy) {
+    fail('A location reference must have exactly one of www_root or proxy or upstream defined')
   }
-  if (! $www_root  and (! $proxy) ) {
-    fail('A location reference must have exactly one of www_root or proxy defined')
+  if ($proxy and $upstream) {
+    fail('A location reference must have exactly one of www_root or proxy or upstream defined')
+  }
+  if ($upstream and $www_root) {
+    fail('A location reference must have exactly one of www_root or proxy or upstream defined')
+  }
+
+  if ((!$www_root) and (!$proxy) and (!$upstream)) {
+    fail('A location reference must have exactly one of www_root or proxy or upstream defined')
   }
 
 # Use proxy template if $proxy is defined, otherwise use directory template.
   if ($proxy) {
     $content_real = template('nginx/vhost/vhost_location_proxy.erb')
-  } else {
+  } else if ($www_root) {
     $content_real = template('nginx/vhost/vhost_location_directory.erb')
+  } else {
+    $content_real = template('nginx/vhost/vhost_location_fastcgi.erb')
   }
 ## Create stubs for vHost File Fragment Pattern
   file {"${nginx::nx_conf_dir_real}/conf.d/.frag-${vhost}-500-${name}":
