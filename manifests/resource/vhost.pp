@@ -26,13 +26,16 @@
 #
 # Sample Usage:
 # nginx::resource::vhost { 'test2.example.com':
-#   ensure       => present,
-#   server_names => ['test2.example.com','foo.example.com'],
-#   listen_port  => 443,
-#   www_root     => '/var/www/nginx-default',
-#   ssl          => true,
-#   ssl_cert     => '/tmp/server.crt',
-#   ssl_key      => '/tmp/server.pem',
+#   ensure                => present,
+#   server_names          => ['test2.example.com','foo.example.com'],
+#   listen_port           => 443,
+#   www_root              => '/var/www/nginx-default',
+#   ssl                   => true,
+#   ssl_cert              => '/tmp/server.crt',
+#   ssl_key               => '/tmp/server.pem',
+#   auth                  => true,
+#   auth_basic            => 'Restricted area',
+#   auth_basic_user_file  => '/etc/nginx/passwd',
 # }
 define nginx::resource::vhost(
   $ensure = 'enable',
@@ -43,6 +46,9 @@ define nginx::resource::vhost(
   $ssl = false,
   $ssl_cert = undef,
   $ssl_key = undef,
+  $auth = false,
+  $auth_basic = undef,
+  $auth_basic_user_file = undef,
   $force_ssl = undef,
   $www_root = undef,
   $error_log = false,
@@ -67,6 +73,13 @@ define nginx::resource::vhost(
   if ($ssl) {
     if ($ssl_cert == undef) or ($ssl_key == undef) {
       fail('nginx: SSL certificate/key (ssl_cert/ssl_key) must be defined and exist on the target system(s)')
+    }
+  }
+
+  # Check to see if Auth is properly defined
+  if ($auth) {
+    if ($auth_basic == undef) or ($auth_basic_user_file == undef) {
+      fail('nginx: auth_basic and $auth_basic_user_file must be defined if $auth is set')
     }
   }
 
